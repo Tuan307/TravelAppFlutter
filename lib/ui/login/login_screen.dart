@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:socialappflutter/custom/base_scaffold.dart';
 import 'package:socialappflutter/ui/forget_password/forget_password_screen.dart';
+import 'package:socialappflutter/ui/main_screen/main_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({Key? key}) : super(key: key);
@@ -115,7 +116,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(8)))),
                   onPressed: () {
-                    Navigator.of(context).pushNamed(ForgetPasswordScreen.routeName);
+                    Navigator.of(context).pushNamed(MainScreen.routeName);
                   },
                   child: const Padding(
                     padding: EdgeInsets.symmetric(vertical: 16),

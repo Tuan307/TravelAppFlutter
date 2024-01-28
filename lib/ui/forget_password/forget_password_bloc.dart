@@ -13,10 +13,6 @@ class ForgetPasswordBloc
   }
 
   Future<void> sendEmailRequest(String email) async {
-    getIt
-        .get<APIClient>()
-        .login()
-        .then((value) => null)
-        .onError((error, stackTrace) => null);
+
   }
 }
