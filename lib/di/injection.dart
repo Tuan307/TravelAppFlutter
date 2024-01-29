@@ -2,8 +2,10 @@
 import 'package:dio/dio.dart';
 import 'package:get_it/get_it.dart';
 import 'package:pretty_dio_logger/pretty_dio_logger.dart';
+import 'package:socialappflutter/network/api_client.dart';
 
 final getIt = GetIt.instance;
+var saveToken = '';
 Future<void> configureDependencies() async {
   getIt.registerLazySingleton<PrettyDioLogger>(
         () => PrettyDioLogger(
@@ -25,12 +27,12 @@ Future<void> configureDependencies() async {
       ),
     ),
   );
-  // getIt.registerFactory<APIClient>(() {
-  //   final prettyDioLogger = getIt.get<PrettyDioLogger>();
-  //   final dio = getIt.get<Dio>();
-  //   dio.options.headers["Authorization"] = "Bearer $saveToken";
-  //   print("vuldk $saveToken");
-  //   dio.interceptors.add(prettyDioLogger);
-  //   return APIClient(dio);
-  // });
+  getIt.registerFactory<APIClient>(() {
+    final prettyDioLogger = getIt.get<PrettyDioLogger>();
+    final dio = getIt.get<Dio>();
+    dio.options.headers["Authorization"] = "Bearer $saveToken";
+    print("tuanpc $saveToken");
+    dio.interceptors.add(prettyDioLogger);
+    return APIClient(dio);
+  });
 }

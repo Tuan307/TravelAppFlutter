@@ -15,48 +15,17 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   final _bloc = HomeScreenBloc();
   bool isLoading = false;
+  bool canLoad = true;
   final ScrollController _scrollController = ScrollController();
-  final List<PostItem> _listOfPost = [
-    PostItem(
-        postId: '1',
-        description: 'hehehe',
-        imagesList: [
-          ImagesList(
-              id: 1,
-              imageUrl:
-                  'https://firebasestorage.googleapis.com/v0/b/social-app-5e237.appspot.com/o/new_posts%2F1696233843832.%5Bjpg%2C%20jpg%2C%20jpg%2C%20jpg%2C%20jpg%5D?alt=media&token=3d0992bd-9fbc-4ba4-8143-ac1e1ac0502a'),
-          ImagesList(
-              id: 2,
-              imageUrl:
-                  'https://firebasestorage.googleapis.com/v0/b/social-app-5e237.appspot.com/o/new_posts%2F1697040151577.jpg?alt=media&token=ebfc492d-c5dc-4ace-ae91-61a854986897'),
-        ],
-        postUserId: PostUserId(
-            userId: '1',
-            userName: 'tuan',
-            fullName: 'pham tuan',
-            imageUrl:
-                'https://firebasestorage.googleapis.com/v0/b/social-app-5e237.appspot.com/o/images.png?alt=media&token=21412571-7fed-4592-9026-cded90f2f718',
-            bio: '',
-            email: '',
-            latitude: 20.0,
-            longitude: 20.0,
-            lastOnline: '',
-            isBlock: false,
-            userInterestProfiles: []),
-        checkInTimestamp: '123',
-        checkInAddress: 'Ha Noi',
-        checkInLatitude: 20.0,
-        checkInLongitude: 20.0,
-        question: '',
-        type: 'image',
-        videoUrl: '')
-  ];
+  final List<PostItem> _listOfPost = [];
+  int pageNumber = 1;
 
   void _scrollListener() {
     if (_scrollController.offset >=
             _scrollController.position.maxScrollExtent &&
         !_scrollController.position.outOfRange &&
-        !isLoading) {
+        !isLoading &&
+        canLoad) {
       _loadMoreItems();
     }
   }
@@ -65,39 +34,8 @@ class _HomeScreenState extends State<HomeScreen> {
     setState(() {
       isLoading = true;
     });
-    await Future.delayed(const Duration(seconds: 2));
-    _listOfPost.add(PostItem(
-        postId: '1',
-        description: 'hehehe',
-        imagesList: [
-          ImagesList(
-              id: 1,
-              imageUrl:
-                  'https://firebasestorage.googleapis.com/v0/b/social-app-5e237.appspot.com/o/new_posts%2F1696233843832.%5Bjpg%2C%20jpg%2C%20jpg%2C%20jpg%2C%20jpg%5D?alt=media&token=3d0992bd-9fbc-4ba4-8143-ac1e1ac0502a'),
-          ImagesList(
-              id: 2,
-              imageUrl:
-                  'https://firebasestorage.googleapis.com/v0/b/social-app-5e237.appspot.com/o/new_posts%2F1697040151577.jpg?alt=media&token=ebfc492d-c5dc-4ace-ae91-61a854986897'),
-        ],
-        postUserId: PostUserId(
-            userId: '1',
-            userName: 'tuan',
-            fullName: 'pham tuan',
-            imageUrl: 'image',
-            bio: '',
-            email: '',
-            latitude: 20.0,
-            longitude: 20.0,
-            lastOnline: '',
-            isBlock: false,
-            userInterestProfiles: []),
-        checkInTimestamp: '123',
-        checkInAddress: 'Ha Noi',
-        checkInLatitude: 20.0,
-        checkInLongitude: 20.0,
-        question: '',
-        type: 'image',
-        videoUrl: ''));
+    pageNumber = pageNumber + 1;
+    _bloc.add(LoadNewFeedEvent(pageNumber: pageNumber));
     setState(() {
       isLoading = false;
     });
@@ -107,7 +45,7 @@ class _HomeScreenState extends State<HomeScreen> {
   void initState() {
     super.initState();
     _scrollController.addListener(_scrollListener);
-    _bloc.add(LoadNewFeedEvent());
+    _bloc.add(LoadNewFeedEvent(pageNumber: 1));
   }
 
   @override
@@ -125,10 +63,23 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
         body: BlocConsumer<HomeScreenBloc, HomeScreenState>(
           bloc: _bloc,
-          listener: (context, state) {},
+          listener: (context, state) {
+            if (state is PostLoadedSuccess) {
+              if (state.postModel.data?.last == true) {
+                canLoad = false;
+              } else {
+                canLoad = true;
+              }
+            }
+          },
           builder: (context, state) {
             switch (state.runtimeType) {
               case PostLoadedSuccess:
+                final successState = state as PostLoadedSuccess;
+                for (PostItem i in successState.postModel.data?.content ?? []) {
+                  _listOfPost.add(i);
+                }
+                print("HEHA ${_listOfPost.length}");
                 return ListView.builder(
                   itemBuilder: (context, index) {
                     if (index == _listOfPost.length) {
@@ -138,11 +89,11 @@ class _HomeScreenState extends State<HomeScreen> {
                     }
                   },
                   controller: _scrollController,
-                  itemCount: _listOfPost.length + 1,
+                  itemCount: _listOfPost.length,
                 );
               default:
+                return Container();
             }
-            return Container();
           },
         ));
   }

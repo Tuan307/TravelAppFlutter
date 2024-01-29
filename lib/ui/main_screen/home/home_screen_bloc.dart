@@ -12,10 +12,10 @@ class HomeScreenBloc extends Bloc<HomeScreenEvent, HomeScreenState> {
     on<LoadNewFeedEvent>(loadNewFeed);
   }
 
-  FutureOr<void> loadNewFeed(
+  Future<void> loadNewFeed(
       LoadNewFeedEvent event, Emitter<HomeScreenState> emit) async {
-    getIt.get<APIClient>().loadNewFeed(10, 1, 'checkInTimestamp').then((value) {
-      emit(PostLoadedSuccess(listOfPost: value.data?.content));
+    await getIt.get<APIClient>().loadNewFeed(10, event.pageNumber, 'checkInTimestamp').then((value) {
+      emit(PostLoadedSuccess(postModel: value));
     }).onError((error, stackTrace) {
       print(stackTrace);
     });

@@ -4,8 +4,8 @@ import 'package:socialappflutter/ui/login/login_screen.dart';
 
 import 'di/injection.dart';
 void main() async{
-  await configureDependencies();
   WidgetsFlutterBinding.ensureInitialized();
+  await configureDependencies();
   runApp( MyApp());
 }
 
