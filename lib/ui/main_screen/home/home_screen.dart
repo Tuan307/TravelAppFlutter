@@ -59,7 +59,13 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: const Text('TravelGo'),
+          automaticallyImplyLeading: false,
+          backgroundColor: Colors.white,
+          title: const Text(
+            'TravelGo',
+            style: TextStyle(
+                color: Colors.black, fontSize: 18, fontWeight: FontWeight.w600),
+          ),
         ),
         body: BlocConsumer<HomeScreenBloc, HomeScreenState>(
           bloc: _bloc,
@@ -80,16 +86,26 @@ class _HomeScreenState extends State<HomeScreen> {
                   _listOfPost.add(i);
                 }
                 print("HEHA ${_listOfPost.length}");
-                return ListView.builder(
-                  itemBuilder: (context, index) {
-                    if (index == _listOfPost.length) {
-                      _buildLoadMoreIndicator();
-                    } else {
-                      return postItem(_listOfPost[index], index);
-                    }
+                return RefreshIndicator(
+                  backgroundColor: Colors.white,
+                  onRefresh: () {
+                    return Future.delayed(const Duration(seconds: 1), () {
+                      _listOfPost.clear();
+                      pageNumber = 1;
+                      _bloc.add(LoadNewFeedEvent(pageNumber: pageNumber));
+                    });
                   },
-                  controller: _scrollController,
-                  itemCount: _listOfPost.length,
+                  child: ListView.builder(
+                    itemBuilder: (context, index) {
+                      if (index == _listOfPost.length) {
+                        return _buildLoadMoreIndicator();
+                      } else {
+                        return postItem(_listOfPost[index], index);
+                      }
+                    },
+                    controller: _scrollController,
+                    itemCount: _listOfPost.length,
+                  ),
                 );
               default:
                 return Container();
@@ -178,6 +194,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     children: [
                       SizedBox(
                         width: MediaQuery.of(context).size.width,
+                        height:320,
                         child: Image.network(
                           data.imagesList?[index].imageUrl ?? '',
                           fit: BoxFit.cover,
